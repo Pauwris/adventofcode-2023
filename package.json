@@ -1,0 +1,15 @@
+{
+	"name": "adventofcode-2023",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/Pauwris/project/issues"
+	},
+	"repository": {
+		"type": "git",
+		"repository": "https://github.com/Pauwris/adventofcode-2023"
+	},
+	"author": {
+		"name": "Kristof Pauwels"
+	},
+	"type": "module"
+}
