@@ -19,8 +19,8 @@ function main() {
 			lastWordMatch.word = reverseString(lastWordMatch.word);
 		}
 
-		const first = NumberMatch.getFirtByIndex(matchFirstDigit, firstWordMatch);
-		const last = NumberMatch.getFirtByIndex(matchLastDigit, lastWordMatch);
+		const first = NumberMatch.getFirstByIndex(matchFirstDigit, firstWordMatch);
+		const last = NumberMatch.getFirstByIndex(matchLastDigit, lastWordMatch);
 
 		const numb = first.value * 10 + last.value;
 		console.log(`${numb} - ${str} - ${first.toString()} - ${last.toString()}`);
@@ -53,7 +53,7 @@ class NumberMatch {
 	 * @param {NumberMatch} a
 	 * @param {NumberMatch} b
 	 */
-	static getFirtByIndex(a, b) {
+	static getFirstByIndex(a, b) {
 		if (!a && !b) throw Error(`getFirst`);
 		if (a && b) return a.index < b.index ? a : b;
 		if (!a) return b;
