@@ -1,44 +1,35 @@
 import * as fs from 'fs';
 
-class SourceDestination {
-	source: number[] = []
-	destination: number[] = []
+class RangeDef {
+	constructor(public destStart: number, public sourceStart: number, public rangeLength: number) {}
+
+	sourceIndexOf(value: number):number {
+		if (value > this.sourceStart + this.rangeLength) return -1;
+		if (value < this.sourceStart) return -1;
+		return value - this.sourceStart;
+	}
+
+	getDestinationValue(index: number):number {
+		return this.destStart + index;
+	}
 }
 
 class AlmanacMap {
 	name: string = "";
 	shortName: string = "";
-	rangeDefinition: number[][] = [];
-	ranges: SourceDestination[] = [];
+	rangeDefinition: RangeDef[] = [];
 
 	constructor(name: string) {
 		this.name = name;
 		this.shortName = name.split("-")[2];
 	}
 
-	calculate() {
-		this.rangeDefinition.forEach(rangeDef => {
-			const [destStart, sourceStart, rangeLength] = rangeDef;
-			const list: number[] = [];
-
-			const sd = new SourceDestination()
-			for (let i=sourceStart; i<sourceStart + rangeLength; i++) {
-				sd.source.push(i);
-			}
-			for (let i=destStart; i<destStart + rangeLength; i++) {
-				sd.destination.push(i);
-			}
-
-			this.ranges.push(sd)
-		})
-	}
-
 	findLowest(value: number) {
 		const numbers: number[] = [];
-		this.ranges.forEach(range => {
-			const index = range.source.indexOf(value);
+		this.rangeDefinition.forEach(rangeDef => {
+			const index = rangeDef.sourceIndexOf(value);
 			if (index === -1) return;
-			const destValue = range.destination[index];
+			const destValue = rangeDef.getDestinationValue(index);
 			numbers.push(destValue);
 		})
 
@@ -51,8 +42,8 @@ function parseDigitsLine(line: string) {
 }
 
 function main() {
-	const filePath = 'data/day5-calibration.txt';
-	//const filePath = 'data/day5.txt';
+	//const filePath = 'data/day5-calibration.txt';
+	const filePath = 'data/day5.txt';
 	const fileContent = fs.readFileSync(filePath, 'utf-8');
 
 	const lines = fileContent.split('\n');
@@ -68,14 +59,13 @@ function main() {
 		} else if (am && line) {
 			const rangeDef = parseDigitsLine(line);
 			if (rangeDef.length != 3) throw Error("Invalid data");
-			am.rangeDefinition.push(rangeDef);
+			const [destStart, sourceStart, rangeLength] = rangeDef;
+			am.rangeDefinition.push(new RangeDef(destStart, sourceStart, rangeLength));
 		} else if (am && line === "") {
 			amMaps.push(am);
 			am = null;
 		}
 	})
-
-	amMaps.forEach(am => am.calculate());
 
 	const locationNumbers: number[] = [];
 	seeds.forEach(seed => {
