@@ -41,8 +41,8 @@ function sumNumbers(accumulator: number, a: number) {
 }
 
 function main() {
-	//const filePath = 'data/day3-calibration.txt';
-	const filePath = 'data/day3.txt';
+	const filePath = 'data/day3-calibration.txt';
+	//const filePath = 'data/day3.txt';
 	const fileContent = fs.readFileSync(filePath, 'utf-8');
 	const matrix = fileContent.split('\n');
 
