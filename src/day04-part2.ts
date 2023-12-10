@@ -5,6 +5,7 @@ class Card {
 	cardId: number = 0;
 	winningNumbers: number[] = [];
 	picks: number[] = [];
+	wonBy: Card[] = [];
 
 	constructor(record: string) {
 		this.#record = record;
@@ -34,11 +35,23 @@ class Card {
 		.filter(n => n > 0);
     }
 
-	get score():number {
+	get scoreCount():number {
 		const scoringNumbers = this.picks
 		.filter(n => this.winningNumbers.includes(n));
 
-		return scoringNumbers.length > 0 ? 1 * Math.pow(2, scoringNumbers.length - 1) : 0;
+		return scoringNumbers.length;
+	}
+
+	get copiesCount(): number {
+		return 1 + this.wonBy.length;
+	}
+	get wonBySorted(): number[] {
+		return this.wonBy.map(card => card.cardId).sort((a, b) => a - b);
+	}
+
+	isWonBy(card: Card) {
+		if (!card) throw Error(`Card.isWonBy::card is undefined`)
+		this.wonBy.push(card);
 	}
 }
 
@@ -53,11 +66,25 @@ function main() {
 	const fileContent = fs.readFileSync(filePath, 'utf-8');
 
 	const cards = fileContent.split('\n').map(line => new Card(line));
-	cards.forEach(card => {
-		console.log(`Card ${card.cardId} score ${card.score}`);
+	cards.forEach((card, index, cards) => {
+		for (let i=0; i<card.scoreCount; i++) {
+			cards[index + i + 1]?.isWonBy(card)
+		}
 	})
 
-	const scores = cards.map(card => card.score);
+	cards.forEach((card, index, cards) => {
+		for (let i=0; i<card.scoreCount; i++) {
+			for (let y=0; y<card.wonBy.length; y++) {
+				cards[index + i + 1]?.isWonBy(card)
+			}
+		}
+	})
+
+	cards.forEach(card => {
+		console.log(`Card ${card.cardId} scoreCount=${card.scoreCount}, copiesCount=${card.copiesCount}, wonBy=[${card.wonBySorted.join(",")}]`);
+	})
+
+	const scores = cards.map(card => card.copiesCount);
 	const sum = scores.reduce(mathAdd, 0)
 	console.log(sum);
 }
