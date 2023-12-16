@@ -47,7 +47,7 @@ class CamelCard {
 		return identicalCharCounts.length > 0;
 	}
 	#isXofAPair(x: number): boolean {
-		return Object.values(this.#charCount).filter(count => count === x).length === x;
+		return Object.values(this.#charCount).filter(count => count === 2).length === x;
 	}
 	get #charCount(): Record<string, number> {
 		// Count the occurrences of each character
@@ -92,6 +92,9 @@ function main() {
 	})
 
 	camelCards.map((card, index) => console.log(`${index + 1} - ${JSON.stringify(card)} - ${card.bid * (index + 1)}`));
+
+	const lines = camelCards.map(card => JSON.stringify(card));
+	fs.writeFileSync('data/day7-sorted.txt', lines.join('\n'), 'utf-8');
 
 	const sum: number = camelCards
 	.map((card, index) => card.bid * (index + 1))
