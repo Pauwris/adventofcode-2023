@@ -16,3 +16,6 @@ export class AdventOfCode  {
 	}
 }
 
+export function mathAdd(accumulator: number, a: number) {
+	return accumulator + a;
+}
