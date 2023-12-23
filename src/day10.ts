@@ -21,16 +21,16 @@ class GridTile {
 	}
 
 	get pipeAtN() {
-		return this.grid.getPipe(this.y - 1, this.x);
+		return this.grid.getPipe(this.y - 1, this.x, 'S');
 	}
 	get pipeAtE() {
-		return this.grid.getPipe(this.y, this.x + 1);
+		return this.grid.getPipe(this.y, this.x + 1, 'W');
 	}
 	get pipeAtS() {
-		return this.grid.getPipe(this.y + 1, this.x);
+		return this.grid.getPipe(this.y + 1, this.x, 'N');
 	}
 	get pipeAtW() {
-		return this.grid.getPipe(this.y, this.x - 1);
+		return this.grid.getPipe(this.y, this.x - 1, 'E');
 	}
 
 	constructor(public grid: Grid, public chr: string, private x: number, private y: number) {
@@ -38,17 +38,17 @@ class GridTile {
 		switch(chr) {
 			case '|': this.N = true; this.S = true; break;
 			case '-': this.W = true; this.E = true; break;
-			case 'L': this.N = true; this.E = true; this.printChr = '⭨'; break;
-			case 'J': this.N = true; this.W = true; this.printChr = '⭩'; break;
-			case '7': this.S = true; this.W = true; this.printChr = '⭦'; break;
-			case 'F': this.S = true; this.E = true; this.printChr = '↗'; break;
+			case 'L': this.N = true; this.E = true; break;
+			case 'J': this.N = true; this.W = true; break;
+			case '7': this.S = true; this.W = true; break;
+			case 'F': this.S = true; this.E = true; break;
 			case '.': this.isGround = true; break;
 			case 'S': this.isStart = true; this.N = true; this.E = true; this.S = true; this.W = true; break;
 			default: throw new Error(`Unknown chr '${chr}'`)
 		}
 	}
 
-	conectNextPipe(): GridTile {
+	getNextPipe(): GridTile {
 		let nextPipe =
 			(this.S && this.pipeAtS?.isUnconnected ? this.pipeAtS : null) ??
 			(this.W && this.pipeAtW?.isUnconnected ? this.pipeAtW : null) ??
@@ -105,25 +105,47 @@ class Grid {
 		if (y < 0 || y > this.height - 1) return null;
 		return this.#grid[y][x];
 	}
-	getPipe(y: number, x: number): GridTile | null {
+	getPipe(y: number, x: number, needsGate: ('N' | 'E' | 'S' | 'W' | null)): GridTile | null {
 		let tile = this.getGridTile(y, x);
-		return tile?.isPipe ? tile : null;
+		if (tile && tile.isPipe) {
+			if (needsGate) {
+				return tile[needsGate] ? tile : null;
+			} else {
+				return tile;
+			}
+		}
+		return null;
 	}
 
 	calculateRoute() {
-		let tile = this.startTile;
+		let pipe = this.startTile;
+		this.route.push(pipe);
 
 		do {
-			tile = tile.conectNextPipe();
-			this.route.push(tile);
+			pipe = pipe.getNextPipe();
+			this.route.push(pipe);
 
 			if (this.route.length > this.width * this.height) throw new Error('Routing failed');
-		} while (tile.isStart === false)
+		} while (pipe.isStart === false)
+	}
+
+	plotRoute() {
+		const tiles = this.#grid.flat();
+
+		tiles.forEach(tile => {
+			if (tile.isStart) {
+				tile.printChr = 'S';
+			} else if (this.route.includes(tile)) {
+				tile.printChr = 'x';
+			} else {
+				tile.printChr = '.'
+			}
+		})
 	}
 
 	print() {
 		for (let y=0; y<this.height; y++) {
-			console.log(this.#grid[y].map(gridTile => gridTile.chr).join(""))
+			console.log(this.#grid[y].map(gridTile => gridTile.printChr).join(""))
 		}
 	}
 }
@@ -133,15 +155,18 @@ function main() {
 
 	const grid = new Grid(aoc.lines);
 	grid.calculateRoute();
+	grid.plotRoute();
 	grid.print();
 
-	console.log(`Grid (${grid.height} x ${grid.width}) - max route=${grid.height * grid.width}, route length=${grid.route.length}, route length/2=${grid.route.length/2}`)
+	const distance = grid.route.length - 1;
+	console.log(`Grid (${grid.height} x ${grid.width}) - max distance=${grid.height * grid.width}, distance=${distance}, distance/2=${distance / 2}`)
 
-	const sum: number = grid.route.length / 2;
+	const sum: number = distance / 2;
 	aoc.printSum(sum);
 
 	// 6813 is too low
 	// 6814 is too low
+	// 6828 is correct
 }
 
 main();
