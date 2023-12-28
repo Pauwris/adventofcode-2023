@@ -3,6 +3,7 @@ import * as fs from 'fs';
 export class AdventOfCode  {
 	#inputPath: string;
 	#outputPath: string;
+	fileContent: string;
 	startTime: Date;
 	lines: string[] = [];
 
@@ -11,8 +12,8 @@ export class AdventOfCode  {
 		this.#inputPath = `data/${dataSourceName}${calibrate ? "-calibration" : ""}.txt`;
 		this.#outputPath = `output/${dataSourceName}${calibrate ? "-calibration" : ""}.txt`;
 
-		const fileContent = fs.readFileSync(this.#inputPath, 'utf-8');
-		this.lines = fileContent.split("\n").map(line => line.replace(/\r/g,''));
+		this.fileContent = fs.readFileSync(this.#inputPath, 'utf-8');
+		this.lines = this.fileContent.split("\n").map(line => line.replace(/\r/g,''));
 	}
 
 	get elapsedMilliseconds() {
