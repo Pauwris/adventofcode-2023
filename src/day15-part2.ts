@@ -74,7 +74,7 @@ function main() {
     let sum = 0;
 
     boxes
-    //.filter(box => box.lenses.length > 0)
+    .filter(box => box.lenses.length > 0)
     .forEach(box => {        
         let boxTotal = 0;
         const boxNo = box.id + 1;
