@@ -83,15 +83,13 @@ function main() {
             boxTotal += boxNo * slotNo * lens.focalLength;
         });
 
-        console.log(`${boxNo} (box ${box.id}): ${JSON.stringify(box.lenses)} = ${boxTotal}`)
+        //console.log(`${boxNo} (box ${box.id}): ${JSON.stringify(box.lenses)} = ${boxTotal}`)
 
         sum += boxTotal;
     });
 
 
 	aoc.printSum(sum)
-
-    // 58375 is too low
 }
 
 main();
