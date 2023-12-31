@@ -19,31 +19,24 @@ class GridCoordinate {
 type MovementDirection = ('N' | 'E' | 'S' | 'W')
 const allMovementDirections: MovementDirection[] = ['N', 'E', 'S', 'W'];
 
-class ElveStep {
+class Elve {
     position: GridCoordinate;
 
     constructor(private grid: Grid, public startingPosition: GridCoordinate) {
         this.position = startingPosition.clone();
     }
 
-    takeSteps(): ElveStep[] {
-        const elveSteps: ElveStep[] = [];
-
+    walk() {
         const currentTile = this.grid.getGridTile(this.position);
-        if (!currentTile) return elveSteps;
+        if (!currentTile) return;
 
-        const neigbours: GridTile[] = allMovementDirections
+        allMovementDirections
         .map(direction => this.grid.getGridTile(this.position.clone().move(direction)))
         .filter((item): item is GridTile => item !== null)
-        
-        neigbours.forEach(tile => {
-            if (tile.isValidPath) {
-                tile.isWalked = true;
-                elveSteps.push(new ElveStep(this.grid, tile.position))                
-            }
+        .filter(tile => tile.isRock === false)
+        .forEach(tile => {
+            tile.isWalked = true;
         })
-
-        return elveSteps;
     }
 
     get tile(): GridTile {
@@ -54,12 +47,9 @@ class ElveStep {
 }
 
 class GridTile {	
-    printChr: string;
-    isWalked: boolean = false;
+    isWalked = false;
     
-	constructor(public grid: Grid, public chr: string) {
-        this.printChr = chr;
-    }
+	constructor(public grid: Grid, public chr: string) {}
     get position(): GridCoordinate {
         return this.grid.positionOf(this);
     }
@@ -74,9 +64,8 @@ class GridTile {
 		return this.chr === ".";
 	}
 
-    get isValidPath(): boolean {
-        if (this.isRock || this.isStart || this.isWalked) return false;
-        return true;
+    get printChr(): string {
+        return this.isWalked ? 'O' : this.chr;
     }
 }
 
@@ -120,6 +109,10 @@ class Grid {
 		return this.grid[c.y][c.x];
 	}
 
+    get tiles(): GridTile[] {
+        return this.grid.flat();
+    }
+
 	print() {
 		this.output.forEach(line => console.log(line));
 	}
@@ -132,37 +125,40 @@ class Grid {
     }
 }
 
-const dailySteps = 6;
+const dailySteps = 64;
 
 function countPossibleGardenPlots(grid: Grid, lines: string[], startingPosition: GridCoordinate) {
-    const elveSteps: ElveStep[] = [];
-    elveSteps.push(new ElveStep(grid, startingPosition));
+    const elve: Elve[] = [];
+    elve.push(new Elve(grid, startingPosition));
 
-    for (let i=0; i<dailySteps; i++) {
-        const nextSteps = elveSteps.map(elveStep => elveStep.takeSteps()).flat();
-        elveSteps.length = 0;
-        elveSteps.push(...nextSteps);
+    let count = 0;
+    for (let i=dailySteps - 1; i >= 0; i--) {
+        elve.forEach(elve => elve.walk());
+        
+        const walkedTiles = grid.tiles.filter(tile => tile.isWalked);
+        elve.length = 0;
+        elve.push(...walkedTiles.map(tile => new Elve(grid, tile.position)))
+
+        if (i === 0) {
+            grid.print();
+        }        
+
+        count = walkedTiles.length;
+        walkedTiles.forEach(tile => tile.isWalked = false);      
     }
 
-    elveSteps.push(new ElveStep(grid, startingPosition));
-    elveSteps.forEach(elveStep => {
-        elveStep.tile.printChr = 'O'
-    })
-
-    return elveSteps.length;
+    return count;
 }
 
 
 function main() {
-	const aoc = new AdventOfCode("day21", true);
+	const aoc = new AdventOfCode("day21", false);
     const lines = aoc.lines;
 
     const grid = new Grid(lines);
     const startingPosition = grid.startingPosition;
 
     let maxValue = countPossibleGardenPlots(grid, lines, startingPosition);
-    grid.print();
-
 	aoc.printSum(maxValue)
 }
 
