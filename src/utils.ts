@@ -25,8 +25,8 @@ export class AdventOfCode  {
 		console.log(sum);
 	}
 
-	writeOutput(output: string) {
-		fs.writeFileSync(this.#outputPath, output, 'utf-8');
+	writeOutput(output: string, fileName?: string) {
+		fs.writeFileSync(fileName ? fileName : this.#outputPath, output, 'utf-8');
 	}
 }
 
