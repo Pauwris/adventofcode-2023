@@ -94,7 +94,6 @@ function main() {
 	camelCards.map((card, index) => console.log(`${index + 1} - ${JSON.stringify(card)} - ${card.bid * (index + 1)}`));
 
 	const lines = camelCards.map(card => JSON.stringify(card));
-	fs.writeFileSync('data/day7-sorted.txt', lines.join('\n'), 'utf-8');
 
 	const sum: number = camelCards
 	.map((card, index) => card.bid * (index + 1))
