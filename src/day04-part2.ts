@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import { AdventOfCode } from './utils.js'
 
 class Card {
 	#record: string;
@@ -61,11 +61,10 @@ function mathAdd(accumulator: number, a: number) {
 
 
 function main() {
-	//const filePath = 'data/day4-calibration.txt';
-	const filePath = 'data/day4.txt';
-	const fileContent = fs.readFileSync(filePath, 'utf-8');
+	const aoc = new AdventOfCode("day4", false);
+    const lines = aoc.lines;
 
-	const cards = fileContent.split('\n').map(line => new Card(line));
+	const cards = lines.map(line => new Card(line));
 	cards.forEach((card, index, cards) => {
 		for (let i=0; i<card.scoreCount; i++) {
 			cards[index + i + 1]?.isWonBy(card)
@@ -81,12 +80,12 @@ function main() {
 	})
 
 	cards.forEach(card => {
-		console.log(`Card ${card.cardId} scoreCount=${card.scoreCount}, copiesCount=${card.copiesCount}, wonBy=[${card.wonBySorted.join(",")}]`);
+		//console.log(`Card ${card.cardId} scoreCount=${card.scoreCount}, copiesCount=${card.copiesCount}, wonBy=[${card.wonBySorted.join(",")}]`);
 	})
 
 	const scores = cards.map(card => card.copiesCount);
 	const sum = scores.reduce(mathAdd, 0)
-	console.log(sum);
+	aoc.printSum(sum)
 }
 
 main();
